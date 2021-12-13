@@ -10,7 +10,6 @@ app.prepare().then(() => {
   const server = express();
 
   server.all("*", (req, res) => {
-    debugger;
     return handle(req, res);
   });
 

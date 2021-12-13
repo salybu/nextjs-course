@@ -7,7 +7,6 @@ const apiCall = () => {
 };
 
 const Portfolios = (props) => {
-  debugger;
   return (
     <>
       {props.testingData}
@@ -72,7 +71,6 @@ const Portfolios = (props) => {
 };
 
 Portfolios.getInitialProps = async () => {
-  debugger;
   console.log("GET INITIAL PROPS PORTFOLIOS");
   const data = await apiCall();
   return { ...data };

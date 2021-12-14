@@ -1,6 +1,78 @@
+import { useState } from "react";
 import axios from "axios";
 import PortfolioCard from "@/components/portfolios/PortfolioCard";
 import Link from "next/link";
+
+const graphCreatePortfolio = () => {
+  const query = `
+    mutation CreatePortfolio {
+      createPortfolio(input: {
+        title: "New Work",
+        company: "New Company",
+        companyWebsite: "new.website.com",
+        location: "New Location",
+        jobTitle: "New Job Title",
+        description: "New Description ....Overloaaaaaad",
+        startDate: "11/11/2010",
+        endDate: "12/12/2011",
+      }) {
+        _id
+        title
+        company
+        companyWebsite
+        location
+        jobTitle
+        description
+        startDate
+        endDate
+      }
+    }`;
+  return axios
+    .post(`http://localhost:3000/graphql`, { query })
+    .then(({ data: graph }) => graph.data)
+    .then((data) => data.createPortfolio);
+};
+
+const graphUpdatePortfolio = (id) => {
+  // mutation UpdatePortfolio {
+  //   updatePortfolio(id: "${id}", input: {
+  const query = `
+    mutation UpdatePortfolio($id: ID) {
+      updatePortfolio(id: $id, input: {
+        title: "Updated Work",
+        company: "Updated Company",
+      }) {
+        _id
+        title
+        company
+        companyWebsite
+        location
+        jobTitle
+        description
+        startDate
+        endDate
+      }
+    }`;
+
+  const variables = { id };
+  return axios
+    .post(`http://localhost:3000/graphql`, { query, variables })
+    .then(({ data: graph }) => graph.data)
+    .then((data) => data.updatePortfolio);
+};
+
+const graphDeletePortfolio = (id) => {
+  const query = `
+    mutation DeletePortfolio($id: ID) {
+      deletePortfolio(id: $id)
+    }`;
+
+  const variables = { id };
+  return axios
+    .post(`http://localhost:3000/graphql`, { query, variables })
+    .then(({ data: graph }) => graph.data)
+    .then((data) => data.deletePortfolio);
+};
 
 const fetchPortfolios = () => {
   const query = `
@@ -23,7 +95,31 @@ const fetchPortfolios = () => {
     .then((data) => data.portfolios);
 };
 
-const Portfolios = ({ portfolios }) => {
+const Portfolios = ({ data }) => {
+  const [portfolios, setPortfolios] = useState(data.portfolios);
+
+  const createPortfolio = async () => {
+    const newPortfolio = await graphCreatePortfolio();
+    const newPortfolios = [...portfolios, newPortfolio];
+    setPortfolios(newPortfolios);
+  };
+
+  const updatePortfolio = async (id) => {
+    const updatedPortfolio = await graphUpdatePortfolio(id);
+    const index = portfolios.findIndex((p) => p._id === id);
+    const updatedPortfolios = [...portfolios];
+    updatedPortfolios[index] = updatedPortfolio;
+    setPortfolios(updatedPortfolios);
+  };
+
+  const deletePortfolio = async (id) => {
+    const deletedId = await graphDeletePortfolio(id);
+    const index = portfolios.findIndex((p) => p._id === deletedId);
+    const newPortfolios = portfolios.slice();
+    newPortfolios.splice(index, 1);
+    setPortfolios(newPortfolios);
+  };
+
   return (
     <>
       <section className="section-title">
@@ -32,8 +128,10 @@ const Portfolios = ({ portfolios }) => {
             <h1>Portfolios</h1>
           </div>
         </div>
+        <button onClick={createPortfolio} className="btn btn-primary">
+          Create portfolio
+        </button>
       </section>
-      {/* {JSON.stringify(portfolios)} */}
       <section className="pb-5">
         <div className="row">
           {portfolios.map((portfolio) => (
@@ -43,6 +141,18 @@ const Portfolios = ({ portfolios }) => {
                   <PortfolioCard portfolio={portfolio} />
                 </a>
               </Link>
+              <button
+                onClick={() => updatePortfolio(portfolio._id)}
+                className="btn btn-warning"
+              >
+                Update portfolio
+              </button>
+              <button
+                onClick={() => deletePortfolio(portfolio._id)}
+                className="btn btn-danger"
+              >
+                Delete portfolio
+              </button>
             </div>
           ))}
         </div>
@@ -53,7 +163,7 @@ const Portfolios = ({ portfolios }) => {
 
 Portfolios.getInitialProps = async () => {
   const portfolios = await fetchPortfolios();
-  return { portfolios };
+  return { data: { portfolios } };
 };
 
 export default Portfolios;

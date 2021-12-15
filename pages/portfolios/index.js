@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
+import { useLazyQuery } from "@apollo/client";
 import PortfolioCard from "@/components/portfolios/PortfolioCard";
 import Link from "next/link";
+import { GET_PORTFOLIOS } from "@/apollo/queries";
 
 const graphCreatePortfolio = () => {
   const query = `
@@ -95,8 +97,21 @@ const fetchPortfolios = () => {
     .then((data) => data.portfolios);
 };
 
-const Portfolios = ({ data }) => {
-  const [portfolios, setPortfolios] = useState(data.portfolios);
+const Portfolios = () => {
+  const [portfolios, setPortfolios] = useState([]);
+  const [getPortfolios, { loading, data }] = useLazyQuery(GET_PORTFOLIOS);
+
+  useEffect(() => {
+    getPortfolios();
+  }, []);
+
+  if (data && data.portfolios.length > 0 && portfolios.length === 0) {
+    setPortfolios(data.portfolios);
+  }
+
+  if (loading) {
+    return "Loading...";
+  }
 
   const createPortfolio = async () => {
     const newPortfolio = await graphCreatePortfolio();
@@ -159,11 +174,6 @@ const Portfolios = ({ data }) => {
       </section>
     </>
   );
-};
-
-Portfolios.getInitialProps = async () => {
-  const portfolios = await fetchPortfolios();
-  return { data: { portfolios } };
 };
 
 export default Portfolios;

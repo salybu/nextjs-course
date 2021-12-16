@@ -1,39 +1,9 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { useLazyQuery } from "@apollo/client";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import PortfolioCard from "@/components/portfolios/PortfolioCard";
 import Link from "next/link";
-import { GET_PORTFOLIOS } from "@/apollo/queries";
-
-const graphCreatePortfolio = () => {
-  const query = `
-    mutation CreatePortfolio {
-      createPortfolio(input: {
-        title: "New Work",
-        company: "New Company",
-        companyWebsite: "new.website.com",
-        location: "New Location",
-        jobTitle: "New Job Title",
-        description: "New Description ....Overloaaaaaad",
-        startDate: "11/11/2010",
-        endDate: "12/12/2011",
-      }) {
-        _id
-        title
-        company
-        companyWebsite
-        location
-        jobTitle
-        description
-        startDate
-        endDate
-      }
-    }`;
-  return axios
-    .post(`http://localhost:3000/graphql`, { query })
-    .then(({ data: graph }) => graph.data)
-    .then((data) => data.createPortfolio);
-};
+import { GET_PORTFOLIOS, CREATE_PORTFOLIO } from "@/apollo/queries";
 
 const graphUpdatePortfolio = (id) => {
   // mutation UpdatePortfolio {
@@ -100,24 +70,41 @@ const fetchPortfolios = () => {
 const Portfolios = () => {
   const [portfolios, setPortfolios] = useState([]);
   const [getPortfolios, { loading, data }] = useLazyQuery(GET_PORTFOLIOS);
+  const [createPortfolio] = useMutation(CREATE_PORTFOLIO, {
+    update(cache, { data: { createPortfolio } }) {
+      // debugger;
+      const { portfolios } = cache.readQuery({ query: GET_PORTFOLIOS });
+      cache.writeQuery({
+        query: GET_PORTFOLIOS,
+        data: { portfolios: [...portfolios, createPortfolio] },
+      });
+    },
+  });
+
+  // const onPortfolioCreated = (dataCreated) => {
+  //   // debugger;
+  //   setPortfolios([...portfolios, dataCreated.createPortfolio]); // useMutation createPortolio naming 그대로 들어온다
+  // };
+
+  // const [createPortfolio] = useMutation(CREATE_PORTFOLIO, {
+  //   onCompleted: onPortfolioCreated,
+  // });
 
   useEffect(() => {
     getPortfolios();
   }, []);
 
-  if (data && data.portfolios.length > 0 && portfolios.length === 0) {
+  if (
+    data &&
+    data.portfolios.length > 0 &&
+    (portfolios.length === 0 || data.portfolios.length !== portfolios.length) // 매우 복잡..
+  ) {
     setPortfolios(data.portfolios);
   }
 
   if (loading) {
     return "Loading...";
   }
-
-  const createPortfolio = async () => {
-    const newPortfolio = await graphCreatePortfolio();
-    const newPortfolios = [...portfolios, newPortfolio];
-    setPortfolios(newPortfolios);
-  };
 
   const updatePortfolio = async (id) => {
     const updatedPortfolio = await graphUpdatePortfolio(id);

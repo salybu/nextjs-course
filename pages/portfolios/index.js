@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
 import axios from "axios";
-import { useLazyQuery, useMutation } from "@apollo/client";
+import { useQuery, useMutation } from "@apollo/client";
 import PortfolioCard from "@/components/portfolios/PortfolioCard";
 import Link from "next/link";
 import { GET_PORTFOLIOS, CREATE_PORTFOLIO } from "@/apollo/queries";
+import withApollo from "@/hoc/withApollo";
+import { getDataFromTree } from "@apollo/client/react/ssr";
 
 const graphUpdatePortfolio = (id) => {
   // mutation UpdatePortfolio {
@@ -68,8 +69,7 @@ const fetchPortfolios = () => {
 };
 
 const Portfolios = () => {
-  const [portfolios, setPortfolios] = useState([]);
-  const [getPortfolios, { loading, data }] = useLazyQuery(GET_PORTFOLIOS);
+  const { data } = useQuery(GET_PORTFOLIOS);
   const [createPortfolio] = useMutation(CREATE_PORTFOLIO, {
     update(cache, { data: { createPortfolio } }) {
       // debugger;
@@ -80,31 +80,6 @@ const Portfolios = () => {
       });
     },
   });
-
-  // const onPortfolioCreated = (dataCreated) => {
-  //   // debugger;
-  //   setPortfolios([...portfolios, dataCreated.createPortfolio]); // useMutation createPortolio naming 그대로 들어온다
-  // };
-
-  // const [createPortfolio] = useMutation(CREATE_PORTFOLIO, {
-  //   onCompleted: onPortfolioCreated,
-  // });
-
-  useEffect(() => {
-    getPortfolios();
-  }, []);
-
-  if (
-    data &&
-    data.portfolios.length > 0 &&
-    (portfolios.length === 0 || data.portfolios.length !== portfolios.length) // 매우 복잡..
-  ) {
-    setPortfolios(data.portfolios);
-  }
-
-  if (loading) {
-    return "Loading...";
-  }
 
   const updatePortfolio = async (id) => {
     const updatedPortfolio = await graphUpdatePortfolio(id);
@@ -121,6 +96,8 @@ const Portfolios = () => {
     newPortfolios.splice(index, 1);
     setPortfolios(newPortfolios);
   };
+
+  const portfolios = (data && data.portfolios) || [];
 
   return (
     <>
@@ -163,4 +140,4 @@ const Portfolios = () => {
   );
 };
 
-export default Portfolios;
+export default withApollo(Portfolios, { getDataFromTree });

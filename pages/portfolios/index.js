@@ -1,8 +1,13 @@
-import axios from "axios";
+// import axios from "axios";
 import { useQuery, useMutation } from "@apollo/client";
 import PortfolioCard from "@/components/portfolios/PortfolioCard";
 import Link from "next/link";
-import { GET_PORTFOLIOS, CREATE_PORTFOLIO } from "@/apollo/queries";
+import {
+  GET_PORTFOLIOS,
+  CREATE_PORTFOLIO,
+  UPDATE_PORTFOLIO,
+  DELETE_PORTFOLIO,
+} from "@/apollo/queries";
 import withApollo from "@/hoc/withApollo";
 import { getDataFromTree } from "@apollo/client/react/ssr";
 
@@ -70,6 +75,23 @@ const fetchPortfolios = () => {
 
 const Portfolios = () => {
   const { data } = useQuery(GET_PORTFOLIOS);
+  const [updatePortfolio] = useMutation(UPDATE_PORTFOLIO);
+  // debugger;
+  const [deletePortfolio] = useMutation(DELETE_PORTFOLIO, {
+    update(cache, { data: { deletePortfolio } }) {
+      debugger;
+      const { portfolios } = cache.readQuery({ query: GET_PORTFOLIOS });
+      const newPortfolios = portfolios.filter(
+        // (p) => p._id !== deletePortfolio._id
+        (p) => p._id !== deletePortfolio
+      );
+      cache.writeQuery({
+        query: GET_PORTFOLIOS,
+        data: { portfolios: newPortfolios },
+      });
+    },
+  });
+
   const [createPortfolio] = useMutation(CREATE_PORTFOLIO, {
     update(cache, { data: { createPortfolio } }) {
       // debugger;
@@ -81,21 +103,13 @@ const Portfolios = () => {
     },
   });
 
-  const updatePortfolio = async (id) => {
-    const updatedPortfolio = await graphUpdatePortfolio(id);
-    const index = portfolios.findIndex((p) => p._id === id);
-    const updatedPortfolios = [...portfolios];
-    updatedPortfolios[index] = updatedPortfolio;
-    setPortfolios(updatedPortfolios);
-  };
+  // const updatePortfolio = async (id) => {
+  //   await graphUpdatePortfolio(id);
+  // };
 
-  const deletePortfolio = async (id) => {
-    const deletedId = await graphDeletePortfolio(id);
-    const index = portfolios.findIndex((p) => p._id === deletedId);
-    const newPortfolios = portfolios.slice();
-    newPortfolios.splice(index, 1);
-    setPortfolios(newPortfolios);
-  };
+  // const deletePortfolio = async (id) => {
+  //   await graphDeletePortfolio(id);
+  // };
 
   const portfolios = (data && data.portfolios) || [];
 
@@ -121,13 +135,19 @@ const Portfolios = () => {
                 </a>
               </Link>
               <button
-                onClick={() => updatePortfolio(portfolio._id)}
+                // onClick={() => updatePortfolio(portfolio._id)}
+                onClick={() =>
+                  updatePortfolio({ variables: { id: portfolio._id } })
+                }
                 className="btn btn-warning"
               >
                 Update portfolio
               </button>
               <button
-                onClick={() => deletePortfolio(portfolio._id)}
+                // onClick={() => deletePortfolio(portfolio._id)}
+                onClick={() =>
+                  deletePortfolio({ variables: { id: portfolio._id } })
+                }
                 className="btn btn-danger"
               >
                 Delete portfolio

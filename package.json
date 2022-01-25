@@ -20,6 +20,7 @@
     "express": "^4.17.1",
     "express-graphql": "^0.9.0",
     "graphql": "^14.6.0",
+    "mongoose": "^6.1.7",
     "next": "^12.0.4",
     "next-with-apollo": "^5.2.1",
     "node-sass": "^6.0.1",

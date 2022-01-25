@@ -13,6 +13,11 @@ const { portfolioQueries, portfolioMutations } = require("./graphql/resolvers");
 // types
 const { portfolioTypes } = require("./graphql/types");
 
+// connect to DB
+require("./database").connect();
+// const db = require('./database');
+// db.connect();
+
 app.prepare().then(() => {
   const server = express();
 

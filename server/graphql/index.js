@@ -49,7 +49,7 @@ exports.createApolloServer = () => {
     context: () => ({
       models: {
         Portfolio: new Portfolio(mongoose.model("Portfolio")),
-        User: new User(),
+        User: new User(mongoose.model("User")),
       },
     }),
   });

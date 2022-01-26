@@ -10,6 +10,8 @@ exports.connect = () => {
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
+      // useFindAndModify: false, // previous deprecation warning, but not working now
+      // DeprecationWarning: Mongoose: 'findOneAndUpdate()' and 'findOneAndDelete()' without the 'useFindAndModify' option set to false are deprecated.
     },
     () => {
       console.log("connected to DB");

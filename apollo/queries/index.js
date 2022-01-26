@@ -42,8 +42,8 @@ export const CREATE_PORTFOLIO = gql`
         location: "New Location"
         jobTitle: "New Job Title"
         description: "New Description ....Overloaaaaaad"
-        startDate: "11/11/2010"
-        endDate: "12/12/2011"
+        startDate: "2012-12-12T23:59Z"
+        endDate: "2013-11-14T23:59Z"
       }
     ) {
       _id
@@ -63,7 +63,12 @@ export const UPDATE_PORTFOLIO = gql`
   mutation UpdatePortfolio($id: ID) {
     updatePortfolio(
       id: $id
-      input: { title: "Updated Work", company: "Updated Company" }
+      input: {
+        title: "Updated Work"
+        company: "Updated Company"
+        startDate: "2012-12-12T23:59Z"
+        endDate: "2013-11-14T23:59Z"
+      }
     ) {
       _id
       title

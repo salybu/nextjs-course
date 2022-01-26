@@ -12,6 +12,8 @@ import { getDataFromTree } from "@apollo/client/react/ssr";
 const Portfolios = () => {
   const { data } = useGetPortfolios();
   const [updatePortfolio] = useUpdatePortfolio();
+  // const [deletePortfolio, { data: dataD }] = useDeletePortfolio();
+  // debugger;
   const [deletePortfolio] = useDeletePortfolio();
   const [createPortfolio] = useCreatePortfolio();
 

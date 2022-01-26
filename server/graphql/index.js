@@ -1,9 +1,15 @@
 const mongoose = require("mongoose");
 const { ApolloServer, gql } = require("apollo-server-express");
 
-const { portfolioQueries, portfolioMutations } = require("./resolvers");
+const {
+  portfolioQueries,
+  portfolioMutations,
+  userMutations,
+} = require("./resolvers");
 const { portfolioTypes } = require("./types");
+
 const Portfolio = require("./models/Portfolio");
+const User = require("./models/User");
 
 exports.createApolloServer = () => {
   // Construct a schema, using GraphQL schema language
@@ -19,6 +25,10 @@ exports.createApolloServer = () => {
       createPortfolio(input: PortfolioInput): Portfolio
       updatePortfolio(id: ID, input: PortfolioInput): Portfolio
       deletePortfolio(id: ID): ID
+
+      signIn: String
+      signUp: String
+      signOut: String
     }
   `;
 
@@ -29,6 +39,7 @@ exports.createApolloServer = () => {
     },
     Mutation: {
       ...portfolioMutations,
+      ...userMutations,
     },
   };
 
@@ -38,6 +49,7 @@ exports.createApolloServer = () => {
     context: () => ({
       models: {
         Portfolio: new Portfolio(mongoose.model("Portfolio")),
+        User: new User(),
       },
     }),
   });

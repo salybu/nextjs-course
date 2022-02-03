@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const portfolioSchema = new Schema({
-  // title: String,
   title: { type: String, required: true, maxlength: 128 },
   company: { type: String, required: true, maxlength: 64 },
   companyWebsite: { type: String, required: true, maxlength: 128 },
@@ -10,8 +9,8 @@ const portfolioSchema = new Schema({
   jobTitle: { type: String, required: true, maxlength: 128 },
   description: { type: String, required: true },
   startDate: { type: Date, required: true },
-  // endDate: {type: Date},
   endDate: Date,
+  user: { type: Schema.Types.ObjectId, ref: "User" },
   createdAt: { type: Date, default: Date.now },
 });
 

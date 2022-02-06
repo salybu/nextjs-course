@@ -192,7 +192,7 @@ const MyApp = ({ Component, pageProps }) => {
 
 &nbsp;
 
-### 11. get Initial props of \_app.js ...
+### 11. getInitialprops of \_app.js ...
 
 - It will retrieve these data to the props in our component. Let's write props in Portfolio input, and we can get the testing data.
 
@@ -232,7 +232,7 @@ export default MyApp;
 
 &nbsp;
 
-- Write the contents above in `_app.js` and then access to `localhost:3000`, you can see a log below in terminal (server). The `console.log(initialProps);` is executed before returning an object containing appData prop, so nothing is printed to pageProps.
+- Write the contents above in `_app.js` and then access to `localhost:3000`, you can see a log below in terminal (server). The `console.log(initialProps);` is executed before returning an object containing appData prop, so nothing is printed in pageProps.
 
 ```
 wait  - compiling / (client and server)...
@@ -248,3 +248,31 @@ GET INITIAL PROPS _APP
 - The `debugger;` in MyApp component is executed on the browser, so you can check the results in Source tab in browser Developer tools. If the developer tool on the browser doesn't open, the results cannot be viewed and `debugger;` code is also not paused.
 
 <p align="center"><img src="https://user-images.githubusercontent.com/66893123/148897695-54f372ad-e879-4469-883f-aa0973454bda.PNG"  alt="nextjs-debugger"></p>
+
+&nbsp;
+
+### getInitialProps is not recommended...
+
+- [Recommended:](https://nextjs.org/docs/api-reference/data-fetching/get-initial-props) `getStaticProps` or `getServerSideProps` instead of `getInitialProps`. `getInitialProps` enables _**server-side rendering**_ in a page and allows you to do initial data population, it means sending the page with the data already populated from the server.
+
+  - `getInitialProps` will _**disable Automatic Static Optimization**_
+
+- [Nextjs automatically determines that a page is static (can be prerendered)](https://nextjs.org/docs/advanced-features/automatic-static-optimization) if it has no blocking data requirements. This determination is made by the _**absence of `getServerSideProps` and `getInitialProps`**_ in the page.
+
+&nbsp;
+
+- `getInitialProps` receive a single argument called `context`, it's an object with the following properties:
+
+  - `pathname`: current route. That is the path of the page in `/pages`
+  - `query`: Query string section of URL parsed as an object ......
+
+&nbsp;
+
+### [Custom `App`](https://nextjs.org/docs/advanced-features/custom-app)
+
+- Nextjs uses the `App` component to _**initialize pages**_. You can override it and control the page initialization.
+
+  - Persisting layout between page changes
+  - Keeping state when navigating pages .......
+
+- When you add `getInitialProps` in your custom app, you must `import App from "next/app"`, _**call `App.getInitialProps(appContext)` inside `getInitialProps`**_ and _**merge**_ the returned object into the return value.
